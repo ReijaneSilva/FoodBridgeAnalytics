@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.Flow
 interface AnalyticsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDonationStats(stats: List<DonationStats>)
+    suspend fun insertDonationStats(stats: List<DonationStats>): List<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertDonationStat(stat: DonationStats)
+    suspend fun insertDonationStat(stat: DonationStats): Long
 
     @Query("SELECT * FROM donation_stats ORDER BY totalKilos DESC")
     fun getAllDonationStats(): Flow<List<DonationStats>>
@@ -24,7 +24,7 @@ interface AnalyticsDao {
     suspend fun getTopDonors(limit: Int): List<DonationStats>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertBadges(badges: List<UserBadge>)
+    suspend fun insertBadges(badges: List<UserBadge>): List<Long>
 
     @Query("SELECT * FROM user_badges WHERE userId = :userId")
     fun getUserBadges(userId: String): Flow<List<UserBadge>>

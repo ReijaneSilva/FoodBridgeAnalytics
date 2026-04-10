@@ -16,6 +16,7 @@ import com.foodbridge.foodbridgeanalytics2.domain.models.ImpactMetrics
 import com.foodbridge.foodbridgeanalytics2.presentation.adapters.BadgeAdapter
 import com.foodbridge.foodbridgeanalytics2.presentation.viewmodel.AnalyticsViewModel
 import com.foodbridge.foodbridgeanalytics2.presentation.viewmodel.AnalyticsViewModelFactory
+import com.foodbridge.foodbridgeanalytics2.presentation.utils.PdfGenerator
 import com.google.firebase.firestore.FirebaseFirestore
 
 class AnalyticsDashboardFragment : Fragment() {
@@ -43,6 +44,20 @@ class AnalyticsDashboardFragment : Fragment() {
 
         setupObservers()
         viewModel.loadAnalytics(userId = "user_123")
+
+        // 🔹 Este bloco precisa estar dentro do onViewCreated
+        binding.btnGeneratePdf.setOnClickListener {
+            val metrics = viewModel.impactMetrics.value
+            val stats = viewModel.donationStats.value
+
+            if (metrics != null && stats != null) {
+                val generator = PdfGenerator(requireContext())
+                val path = generator.generateReport(metrics, stats)
+                Toast.makeText(requireContext(), "PDF salvo em:\n$path", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(requireContext(), "Aguarde carregar os dados!", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun setupObservers() {

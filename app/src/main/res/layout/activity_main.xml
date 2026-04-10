@@ -1,8 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bem-vindo ao Food Bridge"
+        android:textSize="24sp"
+        android:layout_marginBottom="40dp" />
+
+    <Button
+        android:id="@+id/btnAbrirDoador"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Doar Alimento" />
+
+    <Button
+        android:id="@+id/btnAbrirONG"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ver Doações" />
+
+    <Button
+        android:id="@+id/btnGoToReceiver"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sou uma ONG (Ver Doações)"
+        android:layout_marginTop="16dp" />
 
     <FrameLayout
         android:id="@+id/fragmentContainer"
@@ -14,8 +44,6 @@
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        app:menu="@menu/bottom_nav_menu"
-        xmlns:app="http://schemas.android.com/apk/res-auto"/>
+        app:menu="@menu/bottom_nav_menu" />
 
 </LinearLayout>

@@ -5,15 +5,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.foodbridge.foodbridgeanalytics2.R
 import com.foodbridge.foodbridgeanalytics2.data.AnalyticsRepository
 import com.foodbridge.foodbridgeanalytics2.data.local.AppDatabase
 import com.foodbridge.foodbridgeanalytics2.databinding.FragmentChartsBinding
 import com.foodbridge.foodbridgeanalytics2.presentation.viewmodel.AnalyticsViewModel
 import com.foodbridge.foodbridgeanalytics2.presentation.viewmodel.AnalyticsViewModelFactory
-import com.github.mikephil.charting.data.*
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.firebase.firestore.FirebaseFirestore
 
 class ChartsFragment : Fragment() {
@@ -21,9 +23,13 @@ class ChartsFragment : Fragment() {
     private lateinit var binding: FragmentChartsBinding
     private lateinit var viewModel: AnalyticsViewModel
 
+    private val colors = listOf(
+        "#4CAF50", "#2196F3", "#FF9800", "#E91E63",
+        "#9C27B0", "#00BCD4", "#FF5722", "#607D8B"
+    )
+
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentChartsBinding.inflate(inflater, container, false)
@@ -50,36 +56,101 @@ class ChartsFragment : Fragment() {
     }
 
     private fun setupPieChart(data: List<Pair<String, Double>>) {
-        val entries = data.map { PieEntry(it.second.toFloat(), it.first) }
-        val dataSet = PieDataSet(entries, "Doações por Doador").apply {
-            colors = ColorTemplate.MATERIAL_COLORS.toList()
-            valueTextSize = 12f
-            valueTextColor = Color.WHITE
-        }
-        binding.pieChart.apply {
-            this.data = PieData(dataSet)
-            description.text = ""
-            centerText = "Doações"
-            setCenterTextSize(14f)
-            animateY(1000)
-            invalidate()
+        binding.pieChartContainer.removeAllViews()
+        val total = data.sumOf { it.second }
+        if (total == 0.0) return
+
+        data.forEachIndexed { index, (nome, valor) ->
+            val percent = (valor / total * 100).toInt()
+            val color = colors[index % colors.size]
+
+            val row = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.HORIZONTAL
+                setPadding(0, 8, 0, 8)
+            }
+
+            val colorBox = View(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(32, 32).also {
+                    it.marginEnd = 16
+                }
+                setBackgroundColor(Color.parseColor(color))
+            }
+
+            val barContainer = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+
+            val label = TextView(requireContext()).apply {
+                text = "$nome — $percent% (${valor.toInt()} kg)"
+                textSize = 13f
+                setTextColor(Color.parseColor("#333333"))
+            }
+
+            val bar = View(requireContext()).apply {
+                val width = (resources.displayMetrics.widthPixels * percent / 100)
+                layoutParams = LinearLayout.LayoutParams(width, 20).also {
+                    it.topMargin = 4
+                }
+                setBackgroundColor(Color.parseColor(color))
+            }
+
+            barContainer.addView(label)
+            barContainer.addView(bar)
+            row.addView(colorBox)
+            row.addView(barContainer)
+            binding.pieChartContainer.addView(row)
         }
     }
 
     private fun setupBarChart(data: List<Pair<String, Double>>) {
-        val entries = data.mapIndexed { index, pair ->
-            BarEntry(index.toFloat(), pair.second.toFloat())
-        }
-        val dataSet = BarDataSet(entries, "Kg doados").apply {
-            colors = ColorTemplate.MATERIAL_COLORS.toList()
-            valueTextSize = 12f
-        }
-        binding.barChart.apply {
-            this.data = BarData(dataSet)
-            description.text = ""
-            xAxis.labelCount = data.size
-            animateY(1000)
-            invalidate()
+        binding.barChartContainer.removeAllViews()
+        val maxVal = data.maxOfOrNull { it.second } ?: return
+
+        data.forEachIndexed { index, (nome, valor) ->
+            val color = colors[index % colors.size]
+            val heightRatio = (valor / maxVal).toFloat()
+            val maxHeightPx = 200
+
+            val col = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).also {
+                    it.marginEnd = 4
+                    it.marginStart = 4
+                }
+            }
+
+            val valueLabel = TextView(requireContext()).apply {
+                text = "${valor.toInt()}"
+                textSize = 10f
+                gravity = android.view.Gravity.CENTER
+                setTextColor(Color.parseColor("#333333"))
+            }
+
+            val bar = View(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    (maxHeightPx * heightRatio).toInt().coerceAtLeast(4)
+                )
+                setBackgroundColor(Color.parseColor(color))
+            }
+
+            val nameLabel = TextView(requireContext()).apply {
+                text = nome.take(8)
+                textSize = 9f
+                gravity = android.view.Gravity.CENTER
+                setTextColor(Color.parseColor("#666666"))
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).also { it.topMargin = 4 }
+            }
+
+            col.addView(valueLabel)
+            col.addView(bar)
+            col.addView(nameLabel)
+            binding.barChartContainer.addView(col)
         }
     }
 }

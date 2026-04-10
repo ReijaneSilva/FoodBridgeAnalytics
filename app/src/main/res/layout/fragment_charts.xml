@@ -17,7 +17,7 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#2E7D32"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"/>
 
         <androidx.cardview.widget.CardView
             xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -38,11 +38,12 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="#333333"
-                    android:layout_marginBottom="8dp" />
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/pieChart"
+                    android:layout_marginBottom="12dp"/>
+                <LinearLayout
+                    android:id="@+id/pieChartContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="280dp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -64,11 +65,14 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="#333333"
-                    android:layout_marginBottom="8dp" />
-                <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/barChart"
+                    android:layout_marginBottom="12dp"/>
+                <LinearLayout
+                    android:id="@+id/barChartContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="280dp" />
+                    android:layout_height="280dp"
+                    android:orientation="horizontal"
+                    android:gravity="bottom"
+                    android:padding="8dp"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
