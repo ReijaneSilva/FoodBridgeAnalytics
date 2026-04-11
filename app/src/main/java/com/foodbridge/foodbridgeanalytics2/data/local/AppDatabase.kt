@@ -10,7 +10,7 @@ import com.foodbridge.foodbridgeanalytics2.data.models.UserBadge
 
 @Database(
     entities = [DonationStats::class, UserBadge::class, DoacaoEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

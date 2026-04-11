@@ -1,39 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nova Doação"
+            android:text="🌱 Nova Doação"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="#2E7D32"
+            android:layout_marginBottom="20dp"/>
 
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Alimento" android:textStyle="bold" android:textColor="#555555"/>
         <EditText
             android:id="@+id/editFoodName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="O que você vai doar?" />
+            android:hint="Ex: Arroz, Feijão, Pão..."
+            android:layout_marginBottom="12dp"/>
 
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Quantidade" android:textStyle="bold" android:textColor="#555555"/>
         <EditText
             android:id="@+id/editQuantity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Quantidade (ex: 10kg)" />
+            android:hint="Ex: 10 kg, 5 caixas, 20 unidades"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Endereço de Coleta" android:textStyle="bold" android:textColor="#555555"/>
+        <EditText
+            android:id="@+id/editEndereco"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Rua, número, bairro, cidade"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Telefone para Contato" android:textStyle="bold" android:textColor="#555555"/>
+        <EditText
+            android:id="@+id/editTelefone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ex: (51) 99999-9999"
+            android:inputType="phone"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Observações (opcional)" android:textStyle="bold" android:textColor="#555555"/>
+        <EditText
+            android:id="@+id/editObservacoes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ex: Disponível apenas de manhã, produto próximo ao vencimento..."
+            android:minLines="2"
+            android:layout_marginBottom="20dp"/>
 
         <Button
             android:id="@+id/btnSubmit"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Publicar no Food Bridge"
-            android:layout_marginTop="20dp" />
+            android:layout_height="60dp"
+            android:text="📢 PUBLICAR NO FOOD BRIDGE"
+            android:backgroundTint="#2E7D32"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="16dp"/>
 
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

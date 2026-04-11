@@ -35,16 +35,21 @@ class ReceiverActivity : AppCompatActivity() {
                 recycler.adapter = DonationAdapter(
                     doacoesLocais.map {
                         mapOf(
+                            "id" to it.id,
                             "alimento" to it.alimento,
                             "quantidade" to it.quantidade,
-                            "status" to it.status
+                            "status" to it.status,
+                            "nomeDoador" to (it.nomeDoador ?: ""),
+                            "enderecoColeta" to (it.enderecoColeta ?: ""),
+                            "telefoneDoador" to (it.telefoneDoador ?: ""),
+                            "observacoes" to (it.observacoes ?: "")
                         )
                     }
                 )
             }
         }
 
-        // Sincroniza com o Firestore quando online
+        // Sincroniza com Firestore e limpa duplicatas
         db.collection("doacoes")
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
@@ -62,10 +67,16 @@ class ReceiverActivity : AppCompatActivity() {
                             data = doc.getLong("data") ?: System.currentTimeMillis(),
                             latitude = doc.getDouble("latitude"),
                             longitude = doc.getDouble("longitude"),
+                            nomeDoador = doc.getString("nomeDoador"),
+                            enderecoColeta = doc.getString("enderecoColeta"),
+                            telefoneDoador = doc.getString("telefoneDoador"),
+                            observacoes = doc.getString("observacoes"),
                             sincronizado = true
                         )
                     } ?: emptyList()
 
+                    // Limpa e reinsere para evitar duplicatas
+                    doacaoDao.limparTodas()
                     doacaoDao.inserirTodas(doacoes)
                 }
             }

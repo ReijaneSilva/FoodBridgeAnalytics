@@ -13,12 +13,14 @@ import androidx.core.app.ActivityCompat
 import com.foodbridge.foodbridgeanalytics2.R
 import com.foodbridge.foodbridgeanalytics2.SelectionActivity
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.UUID
 
 class DonorActivity : AppCompatActivity() {
 
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,68 +31,94 @@ class DonorActivity : AppCompatActivity() {
 
         val editAlimento = findViewById<EditText>(R.id.editFoodName)
         val editQtd = findViewById<EditText>(R.id.editQuantity)
+        val editEndereco = findViewById<EditText>(R.id.editEndereco)
+        val editTelefone = findViewById<EditText>(R.id.editTelefone)
+        val editObs = findViewById<EditText>(R.id.editObservacoes)
         val botaoEnviar = findViewById<Button>(R.id.btnSubmit)
 
         botaoEnviar.setOnClickListener {
-            val nomeAlimento = editAlimento.text.toString().trim()
+            val alimento = editAlimento.text.toString().trim()
             val quantidade = editQtd.text.toString().trim()
+            val endereco = editEndereco.text.toString().trim()
+            val telefone = editTelefone.text.toString().trim()
+            val obs = editObs.text.toString().trim()
 
-            if (nomeAlimento.isNotEmpty() && quantidade.isNotEmpty()) {
-                botaoEnviar.isEnabled = false
-                capturarLocalizacaoESalvar(nomeAlimento, quantidade, botaoEnviar)
-            } else {
-                Toast.makeText(this, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
+            if (alimento.isEmpty() || quantidade.isEmpty() || endereco.isEmpty() || telefone.isEmpty()) {
+                Toast.makeText(this, "Preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            botaoEnviar.isEnabled = false
+            capturarLocalizacaoESalvar(alimento, quantidade, endereco, telefone, obs, botaoEnviar)
         }
     }
 
-    private fun capturarLocalizacaoESalvar(nome: String, qtd: String, botao: Button) {
+    private fun capturarLocalizacaoESalvar(
+        alimento: String, quantidade: String, endereco: String,
+        telefone: String, obs: String, botao: Button
+    ) {
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                1001
-            )
-            // Salva sem localização se permissão negada
-            salvarNoFirebase(nome, qtd, null, null, botao)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1001)
+            buscarNomeDoadorESalvar(alimento, quantidade, endereco, telefone, obs, null, null, botao)
             return
         }
 
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location ->
-                salvarNoFirebase(nome, qtd, location?.latitude, location?.longitude, botao)
+                buscarNomeDoadorESalvar(alimento, quantidade, endereco, telefone, obs,
+                    location?.latitude, location?.longitude, botao)
             }
             .addOnFailureListener {
-                salvarNoFirebase(nome, qtd, null, null, botao)
+                buscarNomeDoadorESalvar(alimento, quantidade, endereco, telefone, obs, null, null, botao)
+            }
+    }
+
+    private fun buscarNomeDoadorESalvar(
+        alimento: String, quantidade: String, endereco: String,
+        telefone: String, obs: String, lat: Double?, lng: Double?, botao: Button
+    ) {
+        val uid = auth.currentUser?.uid ?: run {
+            salvarNoFirebase(alimento, quantidade, endereco, telefone, obs, "Doador", lat, lng, botao)
+            return
+        }
+
+        db.collection("usuarios").document(uid).get()
+            .addOnSuccessListener { doc ->
+                val nomeDoador = doc.getString("nome") ?: "Doador"
+                salvarNoFirebase(alimento, quantidade, endereco, telefone, obs, nomeDoador, lat, lng, botao)
+            }
+            .addOnFailureListener {
+                salvarNoFirebase(alimento, quantidade, endereco, telefone, obs, "Doador", lat, lng, botao)
             }
     }
 
     private fun salvarNoFirebase(
-        nome: String,
-        qtd: String,
-        lat: Double?,
-        lng: Double?,
-        botao: Button
+        alimento: String, quantidade: String, endereco: String,
+        telefone: String, obs: String, nomeDoador: String,
+        lat: Double?, lng: Double?, botao: Button
     ) {
         val idUnico = UUID.randomUUID().toString()
 
         val doacao = hashMapOf(
             "id" to idUnico,
-            "alimento" to nome,
-            "quantidade" to qtd,
+            "alimento" to alimento,
+            "quantidade" to quantidade,
+            "quantidadeDisponivel" to quantidade,
+            "enderecocoleta" to endereco,
+            "telefoneDoador" to telefone,
+            "observacoes" to obs,
+            "nomeDoador" to nomeDoador,
+            "uidDoador" to (auth.currentUser?.uid ?: ""),
             "status" to "Disponível",
             "data" to System.currentTimeMillis(),
             "latitude" to lat,
             "longitude" to lng
         )
 
-        db.collection("doacoes")
-            .document(idUnico)
-            .set(doacao)
+        db.collection("doacoes").document(idUnico).set(doacao)
             .addOnSuccessListener {
                 Toast.makeText(this, "Doação publicada com sucesso! ✅", Toast.LENGTH_LONG).show()
                 android.os.Handler(mainLooper).postDelayed({
@@ -107,9 +135,7 @@ class DonorActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish(); return true
-        }
+        if (item.itemId == android.R.id.home) { finish(); return true }
         return super.onOptionsItemSelected(item)
     }
 }

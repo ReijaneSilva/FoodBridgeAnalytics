@@ -13,5 +13,9 @@ data class DoacaoEntity(
     val data: Long = System.currentTimeMillis(),
     val latitude: Double? = null,
     val longitude: Double? = null,
+    val nomeDoador: String? = null,
+    val enderecoColeta: String? = null,
+    val telefoneDoador: String? = null,
+    val observacoes: String? = null,
     val sincronizado: Boolean = false
 )
