@@ -58,6 +58,8 @@ dependencies {
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("com.google.android.material:material:1.9.0")
     implementation(libs.androidx.constraintlayout)
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 
     // Room
     implementation(libs.androidx.room.runtime)

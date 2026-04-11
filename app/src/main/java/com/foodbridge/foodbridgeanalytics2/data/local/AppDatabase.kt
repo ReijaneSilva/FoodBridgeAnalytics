@@ -4,17 +4,19 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.foodbridge.foodbridgeanalytics2.data.models.DoacaoEntity
 import com.foodbridge.foodbridgeanalytics2.data.models.DonationStats
 import com.foodbridge.foodbridgeanalytics2.data.models.UserBadge
 
 @Database(
-    entities = [DonationStats::class, UserBadge::class],
-    version = 1,
+    entities = [DonationStats::class, UserBadge::class, DoacaoEntity::class],
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun analyticsDao(): AnalyticsDao
+    abstract fun doacaoDao(): DoacaoDao
 
     companion object {
         @Volatile
@@ -26,7 +28,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "foodbridge_analytics_db"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }
