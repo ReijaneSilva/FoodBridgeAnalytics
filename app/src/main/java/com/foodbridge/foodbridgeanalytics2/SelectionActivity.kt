@@ -9,6 +9,7 @@ import com.foodbridge.foodbridgeanalytics2.presentation.ui.MapActivity
 import com.foodbridge.foodbridgeanalytics2.presentation.ui.ReceiverActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.foodbridge.foodbridgeanalytics2.presentation.ui.LoginActivity
+import com.foodbridge.foodbridgeanalytics2.presentation.ui.ProfileActivity
 
 class SelectionActivity : AppCompatActivity() {
 
@@ -32,6 +33,9 @@ class SelectionActivity : AppCompatActivity() {
             startActivity(Intent(this, MapActivity::class.java))
         }
 
+        binding.btnPerfil.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
         binding.btnViewAnalytics.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
         }

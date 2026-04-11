@@ -21,24 +21,29 @@ class AnalyticsRepository(
 
     suspend fun syncAnalyticsFromFirestore() {
         try {
-            val donations = firestore.collection("donations")
+            // Corrigido: busca da coleção "doacoes" que é onde o app salva
+            val donations = firestore.collection("doacoes")
                 .get()
                 .await()
 
             val stats = donations.documents.groupBy {
-                it.getString("donorId") ?: ""
+                it.getString("id") ?: ""
             }.map { (donorId, docs) ->
                 DonationStats(
                     donorId = donorId,
-                    donorName = docs.firstOrNull()?.getString("donorName") ?: "Desconhecido",
+                    donorName = docs.firstOrNull()?.getString("alimento") ?: "Doação",
                     totalDonations = docs.size,
-                    totalKilos = docs.sumOf { it.getDouble("quantity") ?: 0.0 },
-                    totalValue = docs.sumOf { it.getDouble("estimatedValue") ?: 0.0 }
+                    totalKilos = docs.sumOf {
+                        it.getString("quantidade")?.filter { c ->
+                            c.isDigit() || c == '.'
+                        }?.toDoubleOrNull() ?: 0.0
+                    },
+                    totalValue = 0.0
                 )
             }
 
             analyticsDao.insertDonationStats(stats)
-            Log.d("AnalyticsRepository", "Sincronização bem-sucedida: ${stats.size} doadores")
+            Log.d("AnalyticsRepository", "Sincronizado: ${stats.size} doações")
         } catch (e: Exception) {
             Log.e("AnalyticsRepository", "Erro ao sincronizar", e)
         }
@@ -46,17 +51,25 @@ class AnalyticsRepository(
 
     suspend fun calculateImpactMetrics(): ImpactMetrics {
         return try {
-            val statsList = analyticsDao.getAllDonationStats().first()
-            val totalKilos = statsList.sumOf { it.totalKilos }
+            // Busca diretamente do Firestore para ter dados atualizados
+            val donations = firestore.collection("doacoes").get().await()
+            val totalDoacoes = donations.size()
+
+            // Soma as quantidades numéricas
+            val totalKilos = donations.documents.sumOf {
+                it.getString("quantidade")?.filter { c ->
+                    c.isDigit() || c == '.'
+                }?.toDoubleOrNull() ?: 0.0
+            }
 
             ImpactMetrics(
                 totalFoodSaved = totalKilos,
-                totalFamiliesAssisted = (totalKilos / 5).toInt(),
+                totalFamiliesAssisted = (totalDoacoes * 2),
                 co2Avoided = totalKilos * 2.5,
-                estimatedMeals = (totalKilos * 3).toInt(),
-                totalDonors = statsList.size,
+                estimatedMeals = (totalDoacoes * 3),
+                totalDonors = totalDoacoes,
                 totalReceivers = 0,
-                period = "monthly"
+                period = "total"
             )
         } catch (e: Exception) {
             Log.e("AnalyticsRepository", "Erro ao calcular impacto", e)
@@ -66,42 +79,41 @@ class AnalyticsRepository(
 
     suspend fun generateBadges(userId: String): List<UserBadge> {
         return try {
-            val stats = analyticsDao.getDonationStatsByUser(userId)
+            val donations = firestore.collection("doacoes").get().await()
+            val totalDoacoes = donations.size()
             val badges = mutableListOf<UserBadge>()
 
-            stats?.let {
-                when {
-                    it.totalKilos >= 100 -> badges.add(
-                        UserBadge(
-                            userId = userId,
-                            badgeType = "GOLD_DONOR",
-                            title = "Doador Ouro",
-                            description = "Doou 100+ kg de alimentos",
-                            icon = "ic_badge_gold",
-                            requirement = 100
-                        )
+            when {
+                totalDoacoes >= 10 -> badges.add(
+                    UserBadge(
+                        userId = userId,
+                        badgeType = "GOLD_DONOR",
+                        title = "Doador Ouro",
+                        description = "10+ doações realizadas",
+                        icon = "ic_badge_gold",
+                        requirement = 10
                     )
-                    it.totalKilos >= 50 -> badges.add(
-                        UserBadge(
-                            userId = userId,
-                            badgeType = "SILVER_DONOR",
-                            title = "Doador Prata",
-                            description = "Doou 50+ kg de alimentos",
-                            icon = "ic_badge_silver",
-                            requirement = 50
-                        )
+                )
+                totalDoacoes >= 5 -> badges.add(
+                    UserBadge(
+                        userId = userId,
+                        badgeType = "SILVER_DONOR",
+                        title = "Doador Prata",
+                        description = "5+ doações realizadas",
+                        icon = "ic_badge_silver",
+                        requirement = 5
                     )
-                    it.totalKilos >= 10 -> badges.add(
-                        UserBadge(
-                            userId = userId,
-                            badgeType = "BRONZE_DONOR",
-                            title = "Doador Bronze",
-                            description = "Doou 10+ kg de alimentos",
-                            icon = "ic_badge_bronze",
-                            requirement = 10
-                        )
+                )
+                totalDoacoes >= 1 -> badges.add(
+                    UserBadge(
+                        userId = userId,
+                        badgeType = "BRONZE_DONOR",
+                        title = "Doador Bronze",
+                        description = "Primeira doação realizada",
+                        icon = "ic_badge_bronze",
+                        requirement = 1
                     )
-                }
+                )
             }
 
             analyticsDao.insertBadges(badges)
