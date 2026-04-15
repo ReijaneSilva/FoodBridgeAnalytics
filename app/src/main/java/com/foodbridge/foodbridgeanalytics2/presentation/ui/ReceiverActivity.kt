@@ -2,7 +2,10 @@ package com.foodbridge.foodbridgeanalytics2.presentation.ui
 
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -22,44 +25,51 @@ class ReceiverActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receiver)
 
-        findViewById<Button>(R.id.btnVoltarReceiver).setOnClickListener {
-            finish()
-        }
-
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Alimentos Disponíveis"
-
         val recycler = findViewById<RecyclerView>(R.id.recyclerDonations)
+        val progressBar = findViewById<ProgressBar>(R.id.progressBarReceiver)
+        val tvErro = findViewById<TextView>(R.id.tvErroReceiver)
+
         recycler.layoutManager = LinearLayoutManager(this)
+
+        findViewById<Button>(R.id.btnVoltarReceiver).setOnClickListener { finish() }
 
         val doacaoDao = AppDatabase.getDatabase(this).doacaoDao()
 
-        // Observa o banco local (funciona offline)
+        // Observa banco local (offline)
         lifecycleScope.launch {
             doacaoDao.listarTodas().collect { doacoesLocais ->
-                recycler.adapter = DonationAdapter(
-                    doacoesLocais.map {
-                        mapOf(
-                            "id" to it.id,
-                            "alimento" to it.alimento,
-                            "quantidade" to it.quantidade,
-                            "status" to it.status,
-                            "nomeDoador" to (it.nomeDoador ?: ""),
-                            "enderecoColeta" to (it.enderecoColeta ?: ""),
-                            "telefoneDoador" to (it.telefoneDoador ?: ""),
-                            "observacoes" to (it.observacoes ?: "")
-                        )
-                    }
-                )
+                if (doacoesLocais.isNotEmpty()) {
+                    progressBar.visibility = View.GONE
+                    recycler.visibility = View.VISIBLE
+                    recycler.adapter = DonationAdapter(
+                        doacoesLocais.map {
+                            mapOf(
+                                "id" to it.id,
+                                "alimento" to it.alimento,
+                                "quantidade" to it.quantidade,
+                                "status" to it.status,
+                                "nomeDoador" to (it.nomeDoador ?: ""),
+                                "enderecoColeta" to (it.enderecoColeta ?: ""),
+                                "telefoneDoador" to (it.telefoneDoador ?: ""),
+                                "observacoes" to (it.observacoes ?: "")
+                            )
+                        }
+                    )
+                }
             }
         }
 
-        // Sincroniza com Firestore e limpa duplicatas
+        // Sincroniza com Firestore — mostra apenas Disponível e Reservado
         db.collection("doacoes")
             .whereIn("status", listOf("Disponível", "Reservado"))
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
-                    Toast.makeText(this, "Modo offline ativo", Toast.LENGTH_SHORT).show()
+                    progressBar.visibility = View.GONE
+                    if (recycler.adapter == null || recycler.adapter!!.itemCount == 0) {
+                        tvErro.visibility = View.VISIBLE
+                        tvErro.text = "Sem conexão — mostrando dados salvos offline"
+                        recycler.visibility = View.VISIBLE
+                    }
                     return@addSnapshotListener
                 }
 
@@ -81,9 +91,12 @@ class ReceiverActivity : AppCompatActivity() {
                         )
                     } ?: emptyList()
 
-                    // Limpa e reinsere para evitar duplicatas
                     doacaoDao.limparTodas()
                     doacaoDao.inserirTodas(doacoes)
+
+                    progressBar.visibility = View.GONE
+                    tvErro.visibility = View.GONE
+                    recycler.visibility = View.VISIBLE
                 }
             }
     }
