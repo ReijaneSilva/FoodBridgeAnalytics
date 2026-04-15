@@ -5,9 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.foodbridge.foodbridgeanalytics2.R
@@ -35,6 +33,7 @@ class DonorActivity : AppCompatActivity() {
         val editTelefone = findViewById<EditText>(R.id.editTelefone)
         val editObs = findViewById<EditText>(R.id.editObservacoes)
         val botaoEnviar = findViewById<Button>(R.id.btnSubmit)
+        val listaDoacoes = findViewById<LinearLayout>(R.id.layoutMinhasDoacoes)
 
         botaoEnviar.setOnClickListener {
             val alimento = editAlimento.text.toString().trim()
@@ -51,6 +50,98 @@ class DonorActivity : AppCompatActivity() {
             botaoEnviar.isEnabled = false
             capturarLocalizacaoESalvar(alimento, quantidade, endereco, telefone, obs, botaoEnviar)
         }
+
+        carregarMinhasDoacoes(listaDoacoes)
+    }
+
+    private fun carregarMinhasDoacoes(container: LinearLayout) {
+        val uid = auth.currentUser?.uid ?: return
+
+        db.collection("doacoes")
+            .whereEqualTo("uidDoador", uid)
+            .addSnapshotListener { snapshots, _ ->
+                container.removeAllViews()
+
+                val doacoes = snapshots?.documents ?: return@addSnapshotListener
+                if (doacoes.isEmpty()) return@addSnapshotListener
+
+                val titulo = TextView(this).apply {
+                    text = "Minhas Doações"
+                    textSize = 16f
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    setTextColor(android.graphics.Color.parseColor("#2E7D32"))
+                    setPadding(0, 24, 0, 8)
+                }
+                container.addView(titulo)
+
+                for (doc in doacoes) {
+                    val alimento = doc.getString("alimento") ?: continue
+                    val quantidade = doc.getString("quantidade") ?: ""
+                    val status = doc.getString("status") ?: "Disponível"
+                    val reservadoPor = doc.getString("reservadoPor") ?: ""
+                    val docId = doc.id
+
+                    val card = LinearLayout(this).apply {
+                        orientation = LinearLayout.VERTICAL
+                        setPadding(24, 16, 24, 16)
+                        setBackgroundColor(android.graphics.Color.WHITE)
+                        val params = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        )
+                        params.setMargins(0, 8, 0, 8)
+                        layoutParams = params
+                    }
+
+                    val tvAlimento = TextView(this).apply {
+                        text = "$alimento — $quantidade"
+                        textSize = 15f
+                        setTypeface(null, android.graphics.Typeface.BOLD)
+                    }
+
+                    val tvStatus = TextView(this).apply {
+                        text = when (status) {
+                            "Reservado" -> "🔒 Reservado por: $reservadoPor"
+                            "Coletado" -> "✅ Coletado"
+                            else -> "🟢 Disponível"
+                        }
+                        textSize = 13f
+                        setTextColor(when (status) {
+                            "Reservado" -> android.graphics.Color.parseColor("#E65100")
+                            "Coletado" -> android.graphics.Color.parseColor("#9E9E9E")
+                            else -> android.graphics.Color.parseColor("#2E7D32")
+                        })
+                    }
+
+                    card.addView(tvAlimento)
+                    card.addView(tvStatus)
+
+                    // Botão confirmar coleta só aparece quando está Reservado
+                    if (status == "Reservado") {
+                        val btnColetar = Button(this).apply {
+                            text = "✅ CONFIRMAR COLETA"
+                            setBackgroundColor(android.graphics.Color.parseColor("#388E3C"))
+                            setTextColor(android.graphics.Color.WHITE)
+                            val params = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            )
+                            params.topMargin = 8
+                            layoutParams = params
+                        }
+                        btnColetar.setOnClickListener {
+                            db.collection("doacoes").document(docId)
+                                .update("status", "Coletado")
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "Coleta confirmada! ✅", Toast.LENGTH_SHORT).show()
+                                }
+                        }
+                        card.addView(btnColetar)
+                    }
+
+                    container.addView(card)
+                }
+            }
     }
 
     private fun capturarLocalizacaoESalvar(
@@ -107,7 +198,7 @@ class DonorActivity : AppCompatActivity() {
             "alimento" to alimento,
             "quantidade" to quantidade,
             "quantidadeDisponivel" to quantidade,
-            "enderecocoleta" to endereco,
+            "enderecoColeta" to endereco,
             "telefoneDoador" to telefone,
             "observacoes" to obs,
             "nomeDoador" to nomeDoador,

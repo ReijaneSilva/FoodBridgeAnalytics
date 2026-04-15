@@ -2,6 +2,7 @@ package com.foodbridge.foodbridgeanalytics2.presentation.ui
 
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -20,6 +21,10 @@ class ReceiverActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receiver)
+
+        findViewById<Button>(R.id.btnVoltarReceiver).setOnClickListener {
+            finish()
+        }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Alimentos Disponíveis"
@@ -51,6 +56,7 @@ class ReceiverActivity : AppCompatActivity() {
 
         // Sincroniza com Firestore e limpa duplicatas
         db.collection("doacoes")
+            .whereIn("status", listOf("Disponível", "Reservado"))
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
                     Toast.makeText(this, "Modo offline ativo", Toast.LENGTH_SHORT).show()

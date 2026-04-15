@@ -2,6 +2,7 @@ package com.foodbridge.foodbridgeanalytics2
 
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.foodbridge.foodbridgeanalytics2.databinding.ActivityMainBinding
 import com.foodbridge.foodbridgeanalytics2.presentation.ui.AnalyticsDashboardFragment
@@ -15,6 +16,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        findViewById<Button>(R.id.btnVoltarMain).setOnClickListener {
+            finish()
+        }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Relatórios de Impacto"
