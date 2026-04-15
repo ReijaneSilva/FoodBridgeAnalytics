@@ -43,7 +43,8 @@ class AnalyticsDashboardFragment : Fragment() {
         viewModel = ViewModelProvider(this, factory)[AnalyticsViewModel::class.java]
 
         setupObservers()
-        viewModel.loadAnalytics(userId = "user_123")
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "anonimo"
+        viewModel.loadAnalytics(userId = uid)
 
         // 🔹 Este bloco precisa estar dentro do onViewCreated
         binding.btnGeneratePdf.setOnClickListener {

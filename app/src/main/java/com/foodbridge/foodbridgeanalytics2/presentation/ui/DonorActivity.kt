@@ -212,12 +212,16 @@ class DonorActivity : AppCompatActivity() {
         db.collection("doacoes").document(idUnico).set(doacao)
             .addOnSuccessListener {
                 Toast.makeText(this, "Doação publicada com sucesso! ✅", Toast.LENGTH_LONG).show()
-                android.os.Handler(mainLooper).postDelayed({
-                    startActivity(Intent(this, SelectionActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    })
-                    finish()
-                }, 1500)
+                val handler = android.os.Handler(mainLooper)
+                val runnable = Runnable {
+                    if (!isFinishing && !isDestroyed) {
+                        startActivity(Intent(this, SelectionActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        })
+                        finish()
+                    }
+                }
+                handler.postDelayed(runnable, 1500)
             }
             .addOnFailureListener { erro ->
                 botao.isEnabled = true
