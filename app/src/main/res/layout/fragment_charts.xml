@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="📊 Gráficos de Impacto"
+            android:text="Graficos de Impacto"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#2E7D32"

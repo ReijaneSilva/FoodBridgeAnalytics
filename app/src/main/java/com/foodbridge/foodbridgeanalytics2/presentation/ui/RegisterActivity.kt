@@ -60,7 +60,7 @@ class RegisterActivity : AppCompatActivity() {
                     db.collection("usuarios").document(uid).set(usuario)
                         .addOnSuccessListener {
                             binding.progressBar.visibility = View.GONE
-                            Toast.makeText(this, "Conta criada! 🎉", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
                             startActivity(Intent(this, SelectionActivity::class.java))
                             finishAffinity()
                         }

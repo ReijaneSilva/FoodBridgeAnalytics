@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="🌱 Nova Doação"
+            android:text="Nova Doacao"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#2E7D32"
@@ -25,7 +25,7 @@
             android:id="@+id/editFoodName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Ex: Arroz, Feijão, Pão..."
+            android:hint="Ex: Arroz, Feijao, Pao..."
             android:layout_marginBottom="12dp"/>
 
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -38,12 +38,12 @@
             android:layout_marginBottom="12dp"/>
 
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Endereço de Coleta" android:textStyle="bold" android:textColor="#555555"/>
+            android:text="Endereco de Coleta" android:textStyle="bold" android:textColor="#555555"/>
         <EditText
             android:id="@+id/editEndereco"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Rua, número, bairro, cidade"
+            android:hint="Rua, numero, bairro, cidade"
             android:layout_marginBottom="12dp"/>
 
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -57,12 +57,12 @@
             android:layout_marginBottom="12dp"/>
 
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Observações (opcional)" android:textStyle="bold" android:textColor="#555555"/>
+            android:text="Observacoes (opcional)" android:textStyle="bold" android:textColor="#555555"/>
         <EditText
             android:id="@+id/editObservacoes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Ex: Disponível apenas de manhã, produto próximo ao vencimento..."
+            android:hint="Ex: Disponivel apenas de manha, produto proximo ao vencimento..."
             android:minLines="2"
             android:layout_marginBottom="20dp"/>
 
@@ -70,7 +70,7 @@
             android:id="@+id/btnSubmit"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:text="📢 PUBLICAR NO FOOD BRIDGE"
+            android:text="PUBLICAR NO FOOD BRIDGE"
             android:backgroundTint="#2E7D32"
             android:textColor="#FFFFFF"
             android:layout_marginBottom="16dp"/>

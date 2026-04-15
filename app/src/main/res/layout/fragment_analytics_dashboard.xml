@@ -21,7 +21,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🌱 Impacto Social"
+            android:text="Impacto Social"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#2E7D32"
@@ -42,7 +42,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🥦 Total de Alimentos Salvos"
+                    android:text="Total de Alimentos Salvos"
                     android:textSize="14sp"
                     android:textColor="#555555" />
                 <TextView
@@ -72,7 +72,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="👨‍👩‍👧 Famílias Assistidas"
+                    android:text="Familias Assistidas"
                     android:textSize="14sp"
                     android:textColor="#555555" />
                 <TextView
@@ -102,7 +102,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🌍 CO₂ Evitado"
+                    android:text="CO2 Evitado"
                     android:textSize="14sp"
                     android:textColor="#555555" />
                 <TextView
@@ -132,7 +132,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🍽️ Refeições Estimadas"
+                    android:text="Refeicoes Estimadas"
                     android:textSize="14sp"
                     android:textColor="#555555" />
                 <TextView
@@ -150,7 +150,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🏅 Seus Badges"
+            android:text="Seus Badges"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#2E7D32"
@@ -165,7 +165,7 @@
             android:id="@+id/btnGeneratePdf"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:text="📄 GERAR RELATÓRIO PDF"
+            android:text="GERAR RELATORIO PDF"
             android:backgroundTint="#2E7D32"
             android:textColor="#FFFFFF"
             android:layout_marginTop="16dp"

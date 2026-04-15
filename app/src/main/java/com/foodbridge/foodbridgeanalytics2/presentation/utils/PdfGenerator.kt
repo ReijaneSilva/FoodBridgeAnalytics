@@ -39,50 +39,44 @@ class PdfGenerator(private val context: Context) {
         metrics: ImpactMetrics,
         topDonors: List<DonationStats>
     ) {
-        // Fundo do cabeçalho
         val headerPaint = Paint().apply {
             color = Color.parseColor("#2E7D32")
             style = Paint.Style.FILL
         }
         canvas.drawRect(0f, 0f, 595f, 120f, headerPaint)
 
-        // Título
         val titlePaint = Paint().apply {
             color = Color.WHITE
             textSize = 26f
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         }
-        canvas.drawText("🌱 Food Bridge Analytics", 30f, 55f, titlePaint)
+        canvas.drawText("Food Bridge Analytics", 30f, 55f, titlePaint)
 
         val subtitlePaint = Paint().apply {
             color = Color.parseColor("#C8E6C9")
             textSize = 14f
         }
         val date = SimpleDateFormat("MMMM 'de' yyyy", Locale("pt", "BR")).format(Date())
-        canvas.drawText("Relatório de Impacto Social — $date", 30f, 85f, subtitlePaint)
+        canvas.drawText("Relatorio de Impacto Social - $date", 30f, 85f, subtitlePaint)
 
-        // Seção de métricas
         val sectionPaint = Paint().apply {
             color = Color.parseColor("#1B5E20")
             textSize = 16f
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         }
-        canvas.drawText("MÉTRICAS DE IMPACTO", 30f, 150f, sectionPaint)
+        canvas.drawText("METRICAS DE IMPACTO", 30f, 150f, sectionPaint)
 
-        // Linha separadora
         val linePaint = Paint().apply {
             color = Color.parseColor("#4CAF50")
             strokeWidth = 2f
         }
         canvas.drawLine(30f, 158f, 565f, 158f, linePaint)
 
-        // Cards de métricas
-        drawMetricCard(canvas, 30f, 170f, "🥦 Alimentos Salvos", "${metrics.totalFoodSaved.toInt()} kg", Color.parseColor("#E8F5E9"), Color.parseColor("#2E7D32"))
-        drawMetricCard(canvas, 310f, 170f, "👨‍👩‍👧 Famílias Assistidas", "${metrics.totalFamiliesAssisted}", Color.parseColor("#E3F2FD"), Color.parseColor("#1565C0"))
-        drawMetricCard(canvas, 30f, 280f, "🌍 CO₂ Evitado", "${metrics.co2Avoided.toInt()} kg", Color.parseColor("#FFF3E0"), Color.parseColor("#E65100"))
-        drawMetricCard(canvas, 310f, 280f, "🍽️ Refeições Estimadas", "${metrics.estimatedMeals}", Color.parseColor("#FCE4EC"), Color.parseColor("#880E4F"))
+        drawMetricCard(canvas, 30f, 170f, "Alimentos Salvos", "${metrics.totalFoodSaved.toInt()} kg", Color.parseColor("#E8F5E9"), Color.parseColor("#2E7D32"))
+        drawMetricCard(canvas, 310f, 170f, "Familias Assistidas", "${metrics.totalFamiliesAssisted}", Color.parseColor("#E3F2FD"), Color.parseColor("#1565C0"))
+        drawMetricCard(canvas, 30f, 280f, "CO2 Evitado", "${metrics.co2Avoided.toInt()} kg", Color.parseColor("#FFF3E0"), Color.parseColor("#E65100"))
+        drawMetricCard(canvas, 310f, 280f, "Refeicoes Estimadas", "${metrics.estimatedMeals}", Color.parseColor("#FCE4EC"), Color.parseColor("#880E4F"))
 
-        // Seção top doadores
         canvas.drawText("TOP DOADORES", 30f, 420f, sectionPaint)
         canvas.drawLine(30f, 428f, 565f, 428f, linePaint)
 
@@ -104,12 +98,11 @@ class PdfGenerator(private val context: Context) {
             }
             canvas.drawRect(30f, y - 20f, 565f, y + 20f, bgPaint)
 
-            val medalEmoji = when (index) { 0 -> "🥇"; 1 -> "🥈"; 2 -> "🥉"; else -> "${index + 1}." }
-            canvas.drawText("$medalEmoji ${donor.donorName}", 40f, y, labelPaint)
+            val posicao = when (index) { 0 -> "1."; 1 -> "2."; 2 -> "3."; else -> "${index + 1}." }
+            canvas.drawText("$posicao ${donor.donorName}", 40f, y, labelPaint)
             canvas.drawText("${donor.totalKilos.toInt()} kg", 470f, y, valuePaint)
         }
 
-        // Rodapé
         val footerPaint = Paint().apply {
             color = Color.parseColor("#EEEEEE")
             style = Paint.Style.FILL
@@ -119,7 +112,7 @@ class PdfGenerator(private val context: Context) {
             color = Color.parseColor("#999999")
             textSize = 10f
         }
-        canvas.drawText("Gerado pelo Food Bridge Analytics • ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())}", 30f, 820f, footerTextPaint)
+        canvas.drawText("Gerado pelo Food Bridge Analytics - ${SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())}", 30f, 820f, footerTextPaint)
     }
 
     private fun drawMetricCard(

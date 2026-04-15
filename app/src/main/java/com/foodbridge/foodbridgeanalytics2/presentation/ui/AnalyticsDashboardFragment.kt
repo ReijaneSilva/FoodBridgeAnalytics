@@ -46,7 +46,7 @@ class AnalyticsDashboardFragment : Fragment() {
         val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "anonimo"
         viewModel.loadAnalytics(userId = uid)
 
-        // 🔹 Este bloco precisa estar dentro do onViewCreated
+        // configuracao do botao de gerar PDF
         binding.btnGeneratePdf.setOnClickListener {
             val metrics = viewModel.impactMetrics.value
             val stats = viewModel.donationStats.value

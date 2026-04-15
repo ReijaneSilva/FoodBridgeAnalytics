@@ -25,7 +25,7 @@ class DonorActivity : AppCompatActivity() {
         setContentView(R.layout.activity_donor)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Nova Doação"
+        supportActionBar?.title = "Nova Doacao"
 
         val editAlimento = findViewById<EditText>(R.id.editFoodName)
         val editQtd = findViewById<EditText>(R.id.editQuantity)
@@ -43,7 +43,7 @@ class DonorActivity : AppCompatActivity() {
             val obs = editObs.text.toString().trim()
 
             if (alimento.isEmpty() || quantidade.isEmpty() || endereco.isEmpty() || telefone.isEmpty()) {
-                Toast.makeText(this, "Preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Preencha todos os campos obrigatorios!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -66,7 +66,7 @@ class DonorActivity : AppCompatActivity() {
                 if (doacoes.isEmpty()) return@addSnapshotListener
 
                 val titulo = TextView(this).apply {
-                    text = "Minhas Doações"
+                    text = "Minhas Doacoes"
                     textSize = 16f
                     setTypeface(null, android.graphics.Typeface.BOLD)
                     setTextColor(android.graphics.Color.parseColor("#2E7D32"))
@@ -77,7 +77,7 @@ class DonorActivity : AppCompatActivity() {
                 for (doc in doacoes) {
                     val alimento = doc.getString("alimento") ?: continue
                     val quantidade = doc.getString("quantidade") ?: ""
-                    val status = doc.getString("status") ?: "Disponível"
+                    val status = doc.getString("status") ?: "Disponivel"
                     val reservadoPor = doc.getString("reservadoPor") ?: ""
                     val docId = doc.id
 
@@ -94,16 +94,16 @@ class DonorActivity : AppCompatActivity() {
                     }
 
                     val tvAlimento = TextView(this).apply {
-                        text = "$alimento — $quantidade"
+                        text = "$alimento - $quantidade"
                         textSize = 15f
                         setTypeface(null, android.graphics.Typeface.BOLD)
                     }
 
                     val tvStatus = TextView(this).apply {
                         text = when (status) {
-                            "Reservado" -> "🔒 Reservado por: $reservadoPor"
-                            "Coletado" -> "✅ Coletado"
-                            else -> "🟢 Disponível"
+                            "Reservado" -> "Reservado por: $reservadoPor"
+                            "Coletado" -> "Coletado"
+                            else -> "Disponivel"
                         }
                         textSize = 13f
                         setTextColor(when (status) {
@@ -116,10 +116,9 @@ class DonorActivity : AppCompatActivity() {
                     card.addView(tvAlimento)
                     card.addView(tvStatus)
 
-                    // Botão confirmar coleta só aparece quando está Reservado
                     if (status == "Reservado") {
                         val btnColetar = Button(this).apply {
-                            text = "✅ CONFIRMAR COLETA"
+                            text = "CONFIRMAR COLETA"
                             setBackgroundColor(android.graphics.Color.parseColor("#388E3C"))
                             setTextColor(android.graphics.Color.WHITE)
                             val params = LinearLayout.LayoutParams(
@@ -133,7 +132,7 @@ class DonorActivity : AppCompatActivity() {
                             db.collection("doacoes").document(docId)
                                 .update("status", "Coletado")
                                 .addOnSuccessListener {
-                                    Toast.makeText(this, "Coleta confirmada! ✅", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this, "Coleta confirmada com sucesso!", Toast.LENGTH_SHORT).show()
                                 }
                         }
                         card.addView(btnColetar)
@@ -203,7 +202,7 @@ class DonorActivity : AppCompatActivity() {
             "observacoes" to obs,
             "nomeDoador" to nomeDoador,
             "uidDoador" to (auth.currentUser?.uid ?: ""),
-            "status" to "Disponível",
+            "status" to "Disponivel",
             "data" to System.currentTimeMillis(),
             "latitude" to lat,
             "longitude" to lng
@@ -211,7 +210,7 @@ class DonorActivity : AppCompatActivity() {
 
         db.collection("doacoes").document(idUnico).set(doacao)
             .addOnSuccessListener {
-                Toast.makeText(this, "Doação publicada com sucesso! ✅", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Doacao publicada com sucesso!", Toast.LENGTH_LONG).show()
                 val handler = android.os.Handler(mainLooper)
                 val runnable = Runnable {
                     if (!isFinishing && !isDestroyed) {

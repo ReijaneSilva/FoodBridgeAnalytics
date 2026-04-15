@@ -39,42 +39,45 @@ class DonationAdapter(private val list: List<Map<String, Any>>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = list[position]
         val id = item["id"]?.toString() ?: ""
-        val status = item["status"]?.toString() ?: "Disponível"
+        val statusAtual = item["status"]?.toString() ?: "Disponivel"
         val nomeDoador = item["nomeDoador"]?.toString() ?: ""
         val endereco = item["enderecoColeta"]?.toString() ?: ""
         val telefone = item["telefoneDoador"]?.toString() ?: ""
         val obs = item["observacoes"]?.toString() ?: ""
 
         holder.nome.text = item["alimento"]?.toString() ?: ""
-        holder.qtd.text = "📦 Quantidade: ${item["quantidade"]}"
-        holder.doador.text = if (nomeDoador.isNotEmpty()) "👤 Doador: $nomeDoador" else ""
-        holder.endereco.text = if (endereco.isNotEmpty()) "📍 Coleta: $endereco" else ""
-        holder.telefone.text = if (telefone.isNotEmpty()) "📞 Contato: $telefone" else ""
-        holder.observacoes.text = if (obs.isNotEmpty()) "💬 $obs" else ""
+        holder.qtd.text = "Quantidade: ${item["quantidade"]}"
+        holder.doador.text = if (nomeDoador.isNotEmpty()) "Doador: $nomeDoador" else ""
+        holder.endereco.text = if (endereco.isNotEmpty()) "Local de coleta: $endereco" else ""
+        holder.telefone.text = if (telefone.isNotEmpty()) "Contato: $telefone" else ""
+        holder.observacoes.text = if (obs.isNotEmpty()) obs else ""
         holder.observacoes.visibility = if (obs.isNotEmpty()) View.VISIBLE else View.GONE
 
-        when (status) {
+        when (statusAtual) {
             "Reservado" -> {
                 val reservadoPor = item["reservadoPor"]?.toString() ?: ""
-                holder.status.text = "🔒 Reservado por: $reservadoPor"
+                holder.status.text = "Reservado por: $reservadoPor"
                 holder.status.setTextColor(Color.parseColor("#E65100"))
-                holder.btnReservar.text = "✅ JÁ RESERVADO"
+                holder.btnReservar.text = "JA RESERVADO"
                 holder.btnReservar.isEnabled = false
-                holder.btnReservar.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#9E9E9E"))
+                holder.btnReservar.backgroundTintList =
+                    ColorStateList.valueOf(Color.parseColor("#9E9E9E"))
             }
             "Coletado" -> {
-                holder.status.text = "✅ Já coletado"
+                holder.status.text = "Coletado"
                 holder.status.setTextColor(Color.parseColor("#888888"))
-                holder.btnReservar.text = "✅ COLETADO"
+                holder.btnReservar.text = "COLETADO"
                 holder.btnReservar.isEnabled = false
-                holder.btnReservar.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#BDBDBD"))
+                holder.btnReservar.backgroundTintList =
+                    ColorStateList.valueOf(Color.parseColor("#BDBDBD"))
             }
             else -> {
-                holder.status.text = "🟢 Disponível"
+                holder.status.text = "Disponivel"
                 holder.status.setTextColor(Color.parseColor("#2E7D32"))
-                holder.btnReservar.text = "🤝 RESERVAR ESTA DOAÇÃO"
+                holder.btnReservar.text = "RESERVAR DOACAO"
                 holder.btnReservar.isEnabled = true
-                holder.btnReservar.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#1976D2"))
+                holder.btnReservar.backgroundTintList =
+                    ColorStateList.valueOf(Color.parseColor("#1976D2"))
 
                 holder.btnReservar.setOnClickListener {
                     if (id.isEmpty()) return@setOnClickListener
@@ -82,14 +85,13 @@ class DonationAdapter(private val list: List<Map<String, Any>>) :
                     val ongEmail = auth.currentUser?.email ?: "ONG"
                     val ongUid = auth.currentUser?.uid ?: ""
 
-                    // Usa transação para evitar dupla reserva
                     db.runTransaction { transaction ->
                         val docRef = db.collection("doacoes").document(id)
                         val snapshot = transaction.get(docRef)
-                        val statusAtual = snapshot.getString("status")
+                        val statusDoc = snapshot.getString("status")
 
-                        if (statusAtual != "Disponível") {
-                            throw Exception("Esta doação já foi reservada por outra ONG!")
+                        if (statusDoc != "Disponivel") {
+                            throw Exception("Esta doacao ja foi reservada por outra ONG.")
                         }
 
                         transaction.update(docRef, mapOf(
@@ -101,7 +103,7 @@ class DonationAdapter(private val list: List<Map<String, Any>>) :
                     }.addOnSuccessListener {
                         Toast.makeText(
                             holder.itemView.context,
-                            "Doação reservada! Entre em contato pelo telefone informado. ✅",
+                            "Doacao reservada. Entre em contato pelo telefone informado.",
                             Toast.LENGTH_LONG
                         ).show()
                     }.addOnFailureListener { e ->
