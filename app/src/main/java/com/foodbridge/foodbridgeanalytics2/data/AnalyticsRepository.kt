@@ -1,6 +1,5 @@
 package com.foodbridge.foodbridgeanalytics2.data
 
-import kotlinx.coroutines.flow.first
 import android.util.Log
 import com.foodbridge.foodbridgeanalytics2.data.local.AnalyticsDao
 import com.foodbridge.foodbridgeanalytics2.data.models.DonationStats
@@ -21,10 +20,7 @@ class AnalyticsRepository(
 
     suspend fun syncAnalyticsFromFirestore() {
         try {
-            // Corrigido: busca da coleção "doacoes" que é onde o app salva
-            val donations = firestore.collection("doacoes")
-                .get()
-                .await()
+            val donations = firestore.collection("doacoes").get().await()
 
             val stats = donations.documents.groupBy {
                 it.getString("id") ?: ""
@@ -34,16 +30,13 @@ class AnalyticsRepository(
                     donorName = docs.firstOrNull()?.getString("alimento") ?: "Doação",
                     totalDonations = docs.size,
                     totalKilos = docs.sumOf {
-                        it.getString("quantidade")?.filter { c ->
-                            c.isDigit() || c == '.'
-                        }?.toDoubleOrNull() ?: 0.0
+                        extrairQuantidadeKg(it.getString("quantidade") ?: "0")
                     },
                     totalValue = 0.0
                 )
             }
 
             analyticsDao.insertDonationStats(stats)
-            Log.d("AnalyticsRepository", "Sincronizado: ${stats.size} doações")
         } catch (e: Exception) {
             Log.e("AnalyticsRepository", "Erro ao sincronizar", e)
         }
@@ -51,24 +44,52 @@ class AnalyticsRepository(
 
     suspend fun calculateImpactMetrics(): ImpactMetrics {
         return try {
-            // Busca diretamente do Firestore para ter dados atualizados
             val donations = firestore.collection("doacoes").get().await()
-            val totalDoacoes = donations.size()
+            val docs = donations.documents
 
-            // Soma as quantidades numéricas
-            val totalKilos = donations.documents.sumOf {
-                it.getString("quantidade")?.filter { c ->
-                    c.isDigit() || c == '.'
-                }?.toDoubleOrNull() ?: 0.0
+            // Total de doações cadastradas
+            val totalDoacoes = docs.size
+
+            // Doações disponíveis (ainda não coletadas)
+            val disponíveis = docs.filter {
+                it.getString("status") == "Disponivel"
             }
 
+            // Doações já coletadas
+            val coletadas = docs.filter {
+                it.getString("status") == "Coletado"
+            }
+
+            // Soma apenas kg de doações disponíveis
+            val kgDisponiveis = disponíveis.sumOf {
+                extrairQuantidadeKg(it.getString("quantidade") ?: "0")
+            }
+
+            // Soma apenas kg de doações coletadas
+            val kgColetados = coletadas.sumOf {
+                extrairQuantidadeKg(it.getString("quantidade") ?: "0")
+            }
+
+            // Total de kg (disponível + coletado)
+            val totalKg = kgDisponiveis + kgColetados
+
+            // Famílias assistidas = número de doações coletadas
+            // (cada doação coletada representa uma família atendida)
+            val familiasAssistidas = coletadas.size
+
+            // Refeições estimadas: cada kg gera ~5 refeições
+            val refeicoesEstimadas = (kgColetados * 5).toInt()
+
+            // CO2 evitado: cada kg de alimento salvo evita ~2.5 kg de CO2
+            val co2Evitado = totalKg * 2.5
+
             ImpactMetrics(
-                totalFoodSaved = totalKilos,
-                totalFamiliesAssisted = (totalDoacoes * 2),
-                co2Avoided = totalKilos * 2.5,
-                estimatedMeals = (totalDoacoes * 3),
+                totalFoodSaved = totalKg,
+                totalFamiliesAssisted = familiasAssistidas,
+                co2Avoided = co2Evitado,
+                estimatedMeals = refeicoesEstimadas,
                 totalDonors = totalDoacoes,
-                totalReceivers = 0,
+                totalReceivers = coletadas.size,
                 period = "total"
             )
         } catch (e: Exception) {
@@ -79,7 +100,10 @@ class AnalyticsRepository(
 
     suspend fun generateBadges(userId: String): List<UserBadge> {
         return try {
-            val donations = firestore.collection("doacoes").get().await()
+            val donations = firestore.collection("doacoes")
+                .whereEqualTo("uidDoador", userId)
+                .get()
+                .await()
             val totalDoacoes = donations.size()
             val badges = mutableListOf<UserBadge>()
 
@@ -121,6 +145,20 @@ class AnalyticsRepository(
         } catch (e: Exception) {
             Log.e("AnalyticsRepository", "Erro ao gerar badges", e)
             emptyList()
+        }
+    }
+
+    // Extrai apenas quantidades em kg, ignora unidades como "caixas", "unidades", etc.
+    private fun extrairQuantidadeKg(qtdStr: String): Double {
+        val lower = qtdStr.lowercase()
+        val numero = lower.filter { it.isDigit() || it == '.' }
+            .toDoubleOrNull() ?: return 0.0
+
+        return when {
+            lower.contains("kg") -> numero
+            lower.contains("g") && !lower.contains("kg") -> numero / 1000.0
+            // unidades, caixas, pacotes: não conta como kg
+            else -> 0.0
         }
     }
 }

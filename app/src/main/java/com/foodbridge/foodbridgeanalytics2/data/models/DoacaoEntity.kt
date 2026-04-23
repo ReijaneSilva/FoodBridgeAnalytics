@@ -9,7 +9,7 @@ data class DoacaoEntity(
     val id: String,
     val alimento: String,
     val quantidade: String,
-    val status: String = "Disponível",
+    val status: String = "Disponivel",
     val data: Long = System.currentTimeMillis(),
     val latitude: Double? = null,
     val longitude: Double? = null,

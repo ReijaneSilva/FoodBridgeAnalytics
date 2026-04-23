@@ -33,6 +33,9 @@ class DonorActivity : AppCompatActivity() {
         val editTelefone = findViewById<EditText>(R.id.editTelefone)
         val editObs = findViewById<EditText>(R.id.editObservacoes)
         val botaoEnviar = findViewById<Button>(R.id.btnSubmit)
+        findViewById<Button>(R.id.btnVoltarDoador).setOnClickListener {
+            finish()
+        }
         val listaDoacoes = findViewById<LinearLayout>(R.id.layoutMinhasDoacoes)
 
         botaoEnviar.setOnClickListener {
@@ -41,6 +44,7 @@ class DonorActivity : AppCompatActivity() {
             val endereco = editEndereco.text.toString().trim()
             val telefone = editTelefone.text.toString().trim()
             val obs = editObs.text.toString().trim()
+
 
             if (alimento.isEmpty() || quantidade.isEmpty() || endereco.isEmpty() || telefone.isEmpty()) {
                 Toast.makeText(this, "Preencha todos os campos obrigatorios!", Toast.LENGTH_SHORT).show()
@@ -147,8 +151,6 @@ class DonorActivity : AppCompatActivity() {
         alimento: String, quantidade: String, endereco: String,
         telefone: String, obs: String, botao: Button
     ) {
-        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1001)
@@ -156,7 +158,12 @@ class DonorActivity : AppCompatActivity() {
             return
         }
 
-        fusedLocationClient.lastLocation
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        val locationRequest = com.google.android.gms.location.CurrentLocationRequest.Builder()
+            .setPriority(com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY)
+            .build()
+
+        fusedLocationClient.getCurrentLocation(locationRequest, null)
             .addOnSuccessListener { location ->
                 buscarNomeDoadorESalvar(alimento, quantidade, endereco, telefone, obs,
                     location?.latitude, location?.longitude, botao)

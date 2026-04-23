@@ -48,7 +48,7 @@ class ChartsFragment : Fragment() {
                     val qtdStr = doc.getString("quantidade") ?: "0"
                     val qtd = qtdStr.filter { it.isDigit() || it == '.' }
                         .toDoubleOrNull() ?: 1.0
-                    val status = doc.getString("status") ?: "Disponível"
+                    val status = doc.getString("status") ?: "Disponivel"
 
                     porAlimento[alimento] = (porAlimento[alimento] ?: 0.0) + qtd
                     porStatus[status] = (porStatus[status] ?: 0) + 1
@@ -123,7 +123,7 @@ class ChartsFragment : Fragment() {
         container.addView(divider)
 
         val statusColors = mapOf(
-            "Disponível" to "#4CAF50",
+            "Disponivel" to "#4CAF50",
             "Reservado" to "#FF9800",
             "Coletado" to "#9E9E9E"
         )

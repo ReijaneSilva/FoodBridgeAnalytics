@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -59,9 +58,9 @@ class ReceiverActivity : AppCompatActivity() {
             }
         }
 
-        // Sincroniza com Firestore — mostra apenas Disponível e Reservado
+        // Sincroniza com Firestore — mostra apenas Disponivel e Reservado
         db.collection("doacoes")
-            .whereIn("status", listOf("Disponível", "Reservado"))
+            .whereIn("status", listOf("Disponivel", "Reservado"))
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
                     progressBar.visibility = View.GONE
@@ -79,7 +78,7 @@ class ReceiverActivity : AppCompatActivity() {
                             id = doc.id,
                             alimento = doc.getString("alimento") ?: return@mapNotNull null,
                             quantidade = doc.getString("quantidade") ?: "",
-                            status = doc.getString("status") ?: "Disponível",
+                            status = doc.getString("status") ?: "Disponivel",
                             data = doc.getLong("data") ?: System.currentTimeMillis(),
                             latitude = doc.getDouble("latitude"),
                             longitude = doc.getDouble("longitude"),
