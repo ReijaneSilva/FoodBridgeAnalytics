@@ -24,6 +24,17 @@ class ReceiverActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receiver)
 
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            setContentView(R.layout.activity_receiver)
+
+            if (FirebaseAuth.getInstance().currentUser == null) {
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+                return
+            }
+
+
         val recycler = findViewById<RecyclerView>(R.id.recyclerDonations)
         val progressBar = findViewById<ProgressBar>(R.id.progressBarReceiver)
         val tvErro = findViewById<TextView>(R.id.tvErroReceiver)

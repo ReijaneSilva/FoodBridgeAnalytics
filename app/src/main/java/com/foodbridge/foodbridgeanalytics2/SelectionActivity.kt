@@ -21,6 +21,15 @@ class SelectionActivity : AppCompatActivity() {
         binding = ActivitySelectionBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Proteção: redireciona se não estiver logado
+        if (auth.currentUser == null) {
+            startActivity(Intent(this, LoginActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            })
+            finish()
+            return
+        }
+
         binding.btnSelectionDonor.setOnClickListener {
             startActivity(Intent(this, DonorActivity::class.java))
         }
@@ -36,6 +45,7 @@ class SelectionActivity : AppCompatActivity() {
         binding.btnPerfil.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
+
         binding.btnViewAnalytics.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
         }
