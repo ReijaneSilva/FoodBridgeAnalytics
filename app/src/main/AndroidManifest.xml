@@ -15,30 +15,45 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FoodBridgeAnalytics2">
-        <activity android:name=".presentation.ui.ProfileActivity" android:exported="false" />
 
+        <activity android:name=".presentation.ui.ProfileActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
 
-        <activity android:name=".presentation.ui.MapActivity" android:exported="false" />
+        <activity android:name=".presentation.ui.MapActivity"
+            android:exported="false" />
 
-        <!-- NOVO launcher -->
         <activity
             android:name=".presentation.ui.LoginActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".presentation.ui.RegisterActivity" android:exported="false" />
-        <activity android:name=".SelectionActivity" android:exported="false" />
-        <activity android:name=".MainActivity" android:exported="false" />
-        <activity android:name=".presentation.ui.DonorActivity" android:exported="false" />
-        <activity android:name=".presentation.ui.ReceiverActivity" android:exported="false" />
+        <activity android:name=".presentation.ui.RegisterActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity android:name=".SelectionActivity"
+            android:exported="false" />
+
+        <activity android:name=".MainActivity"
+            android:exported="false" />
+
+        <activity android:name=".presentation.ui.DonorActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity android:name=".presentation.ui.ReceiverActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
     </application>
 

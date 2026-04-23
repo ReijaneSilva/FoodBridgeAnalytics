@@ -24,6 +24,15 @@ class DonorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_donor)
 
+        // Proteção: redireciona se não estiver logado
+        if (auth.currentUser == null) {
+            startActivity(Intent(this, LoginActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            })
+            finish()
+            return
+        }
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Nova Doacao"
 
@@ -33,10 +42,11 @@ class DonorActivity : AppCompatActivity() {
         val editTelefone = findViewById<EditText>(R.id.editTelefone)
         val editObs = findViewById<EditText>(R.id.editObservacoes)
         val botaoEnviar = findViewById<Button>(R.id.btnSubmit)
+        val listaDoacoes = findViewById<LinearLayout>(R.id.layoutMinhasDoacoes)
+
         findViewById<Button>(R.id.btnVoltarDoador).setOnClickListener {
             finish()
         }
-        val listaDoacoes = findViewById<LinearLayout>(R.id.layoutMinhasDoacoes)
 
         botaoEnviar.setOnClickListener {
             val alimento = editAlimento.text.toString().trim()
@@ -45,9 +55,34 @@ class DonorActivity : AppCompatActivity() {
             val telefone = editTelefone.text.toString().trim()
             val obs = editObs.text.toString().trim()
 
-
+            // Campos obrigatórios
             if (alimento.isEmpty() || quantidade.isEmpty() || endereco.isEmpty() || telefone.isEmpty()) {
                 Toast.makeText(this, "Preencha todos os campos obrigatorios!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Tamanho máximo dos campos
+            if (alimento.length > 100) {
+                editAlimento.error = "Máximo 100 caracteres"
+                return@setOnClickListener
+            }
+            if (quantidade.length > 50) {
+                editQtd.error = "Máximo 50 caracteres"
+                return@setOnClickListener
+            }
+            if (endereco.length > 200) {
+                editEndereco.error = "Máximo 200 caracteres"
+                return@setOnClickListener
+            }
+            if (obs.length > 300) {
+                editObs.error = "Máximo 300 caracteres"
+                return@setOnClickListener
+            }
+
+            // Telefone: valida mínimo e máximo de dígitos
+            val telefoneLimpo = telefone.replace(Regex("[^0-9]"), "")
+            if (telefoneLimpo.length < 10 || telefoneLimpo.length > 11) {
+                editTelefone.error = "Telefone inválido. Ex: (51) 99999-9999"
                 return@setOnClickListener
             }
 

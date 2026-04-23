@@ -22,6 +22,15 @@ class ProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
+        // Proteção: redireciona se não estiver logado
+        if (auth.currentUser == null) {
+            startActivity(Intent(this, LoginActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            })
+            finish()
+            return
+        }
+
         val tvNome = findViewById<TextView>(R.id.tvNome)
         val tvEmail = findViewById<TextView>(R.id.tvEmail)
         val tvTipo = findViewById<TextView>(R.id.tvTipo)
